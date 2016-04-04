@@ -19,14 +19,27 @@ describe('greenworks API', function() {
   });
 
   describe('readTextFromFile', function() {
-    it('Should read successfully.', function(done) {
+    it('Should read text successfully.', function(done) {
       greenworks.readTextFromFile('test_file.txt', function(message) {
           assert(message == 'test_content'); done(); }, function(err) {
           throw err; });
     });
 
-    it('Should read failed.', function(done) {
+    it('Should read text failed.', function(done) {
       greenworks.readTextFromFile('not_exist.txt', function(message) {
+       throw 'Error'; }, function(err) { done(); });
+    })
+  });
+
+  describe('readDataFromFile', function() {
+    it('Should read data successfully.', function(done) {
+      greenworks.readDataFromFile('test_file.txt', function(buffer) {
+          assert(buffer.toString() == 'test_content'); done(); }, function(err) {
+          throw err; });
+    });
+
+    it('Should read data failed.', function(done) {
+      greenworks.readDataFromFile('not_exist.txt', function(buffer) {
        throw 'Error'; }, function(err) { done(); });
     })
   });

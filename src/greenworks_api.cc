@@ -257,7 +257,27 @@ NAN_METHOD(ReadTextFromFile) {
   if (info.Length() > 2 && info[2]->IsFunction())
     error_callback = new Nan::Callback(info[2].As<v8::Function>());
 
-  Nan::AsyncQueueWorker(new greenworks::FileReadWorker(success_callback,
+  Nan::AsyncQueueWorker(new greenworks::TextFileReadWorker(success_callback,
+                                                     error_callback,
+                                                     file_name));
+  info.GetReturnValue().Set(Nan::Undefined());
+}
+
+NAN_METHOD(ReadDataFromFile) {
+  Nan::HandleScope scope;
+
+  if (info.Length() < 2 || !info[0]->IsString() || !info[1]->IsFunction()) {
+    THROW_BAD_ARGS("Bad arguments");
+  }
+
+  std::string file_name(*(v8::String::Utf8Value(info[0])));
+  Nan::Callback* success_callback = new Nan::Callback(info[1].As<v8::Function>());
+  Nan::Callback* error_callback = NULL;
+
+  if (info.Length() > 2 && info[2]->IsFunction())
+    error_callback = new Nan::Callback(info[2].As<v8::Function>());
+
+  Nan::AsyncQueueWorker(new greenworks::BinaryFileReadWorker(success_callback,
                                                      error_callback,
                                                      file_name));
   info.GetReturnValue().Set(Nan::Undefined());
@@ -749,6 +769,9 @@ NAN_MODULE_INIT(init) {
   Nan::Set(target,
            Nan::New("readTextFromFile").ToLocalChecked(),
            Nan::New<v8::FunctionTemplate>(ReadTextFromFile)->GetFunction());
+  Nan::Set(target,
+           Nan::New("readDataFromFile").ToLocalChecked(),
+           Nan::New<v8::FunctionTemplate>(ReadDataFromFile)->GetFunction());
   Nan::Set(target,
            Nan::New("saveFilesToCloud").ToLocalChecked(),
            Nan::New<v8::FunctionTemplate>(SaveFilesToCloud)->GetFunction());

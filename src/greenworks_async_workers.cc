@@ -100,25 +100,43 @@ void FileReadWorker::Execute() {
 
   int32 file_size = steam_remote_storage->GetFileSize(file_name_.c_str());
 
-  char* content = new char[file_size+1];
+  char* content = new char[file_size];
   int32 end_pos = steam_remote_storage->FileRead(
       file_name_.c_str(), content, file_size);
-  content[end_pos] = '\0';
 
   if (end_pos == 0 && file_size > 0) {
     SetErrorMessage("Error on reading file.");
+    delete content;
   } else {
-    content_ = std::string(content);
+    content_ = content;
+    end_pos_ = end_pos;
   }
-
-  delete content;
 }
 
-void FileReadWorker::HandleOKCallback() {
+TextFileReadWorker::TextFileReadWorker(Nan::Callback* success_callback,
+  Nan::Callback* error_callback, std::string file_name) :
+    FileReadWorker(success_callback, error_callback, file_name) {
+}
+
+void TextFileReadWorker::HandleOKCallback() {
   Nan::HandleScope scope;
 
-  v8::Local<v8::Value> argv[] = { Nan::New(content_).ToLocalChecked() };
+  v8::Local<v8::Value> argv[] = { Nan::New(content_, end_pos_).ToLocalChecked() };
+  delete content_;
+  content_ = NULL;
   callback->Call(1, argv);
+}
+
+BinaryFileReadWorker::BinaryFileReadWorker(Nan::Callback* success_callback,
+    Nan::Callback* error_callback, std::string file_name) :
+    FileReadWorker(success_callback, error_callback, file_name) {
+}
+
+void BinaryFileReadWorker::HandleOKCallback() {
+    Nan::HandleScope scope;
+
+    v8::Local<v8::Value> argv[] = { Nan::NewBuffer(content_, end_pos_).ToLocalChecked() };
+    callback->Call(1, argv);
 }
 
 CloudQuotaGetWorker::CloudQuotaGetWorker(Nan::Callback* success_callback,

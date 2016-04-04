@@ -48,11 +48,27 @@ class FileReadWorker : public SteamAsyncWorker {
 
   // Override NanAsyncWorker methods.
   virtual void Execute();
-  virtual void HandleOKCallback();
 
- private:
+ protected:
   std::string file_name_;
-  std::string content_;
+  char* content_;
+  int32 end_pos_;
+};
+
+class TextFileReadWorker : public FileReadWorker {
+ public:
+  TextFileReadWorker(Nan::Callback* success_callback, Nan::Callback* error_callback,
+      std::string file_name);
+
+  virtual void HandleOKCallback();
+};
+
+class BinaryFileReadWorker : public FileReadWorker {
+ public:
+  BinaryFileReadWorker(Nan::Callback* success_callback, Nan::Callback* error_callback,
+      std::string file_name);
+
+  virtual void HandleOKCallback();
 };
 
 class CloudQuotaGetWorker : public SteamAsyncWorker {
