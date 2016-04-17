@@ -12,8 +12,15 @@ describe('greenworks API', function() {
   }
 
   describe('saveTextToFile', function() {
-    it('Should save successfully.', function(done) {
+    it('Should save text successfully.', function(done) {
       greenworks.saveTextToFile('test_file.txt', 'test_content',
+          function() { done(); }, function(err) { throw err; done(); });
+    });
+  });
+
+  describe('saveDataToFile', function() {
+    it('Should save data successfully.', function(done) {
+      greenworks.saveDataToFile('test_file.dat', new Buffer([0,1,2,3]),
           function() { done(); }, function(err) { throw err; done(); });
     });
   });
@@ -33,8 +40,8 @@ describe('greenworks API', function() {
 
   describe('readDataFromFile', function() {
     it('Should read data successfully.', function(done) {
-      greenworks.readDataFromFile('test_file.txt', function(buffer) {
-          assert(buffer.toString() == 'test_content'); done(); }, function(err) {
+      greenworks.readDataFromFile('test_file.dat', function(buffer) {
+          assert(buffer.equals(new Buffer([0,1,2,3]))); done(); }, function(err) {
           throw err; });
     });
 
